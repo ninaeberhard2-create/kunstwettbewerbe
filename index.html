@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kunstwettbewerbe Kl. 5–10</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm wireframe UI kit — quiet, tidy, friendly ("keep it short and simple")
+   IDEA: a sheet of UI cards from a Figma card kit, laid on a dark artboard
+   PICTURE: white rounded cards, each with a grey tile holding a bold rounded line icon for its medium
+   COLOUR and TYPE: black fading into grey ground, white cards, grey placeholders, cobalt, pink, yellow; Outfit for headings, JetBrains Mono for everything else; cobalt for action and time, pink for urgency, yellow for today and Kassel
+   LAYOUT: title, deadline timeline and filter bar drawn on the dark ground; only the competitions are white cards */
+:root{color-scheme:dark;--card:#ffffff;--ink:#1f2024;--mute:#7a7c83;--tile:#e4e4e6;--line:#d6d6da;--dark:#2b2c31;--blue:#2f4cff;--pink:#ff4fa8;--yel:#ffd43b}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;min-height:100vh;color:#f1f1f3;font:15px/1.55 "JetBrains Mono",ui-monospace,Menlo,monospace;overflow-x:clip;
+background:linear-gradient(170deg,#121316 0%,#1f2024 35%,#33353a 75%,#45474d 100%) fixed #1f2024}
+.band{padding:clamp(22px,4vw,48px) max(4vw,14px)}
+.wrap{max-width:1240px;margin:0 auto}
+a{color:inherit}
+button,input,select,summary{font-family:inherit}
+:focus-visible{outline:3px solid var(--yel);outline-offset:2px}
+h1,h2,.card h3{font-family:Outfit,system-ui,sans-serif}
+h1{font-size:clamp(34px,5.6vw,58px);line-height:1.02;margin:0;font-weight:600;letter-spacing:-.025em;text-wrap:balance}
+.lede{margin:12px 0 0;color:#b9bac0;max-width:62ch}
+h2{font-size:22px;font-weight:600;margin:0 0 14px;color:#f1f1f3;letter-spacing:-.01em}
+/* timeline: one row per deadline, bar runs from today to the deadline */
+.tl{position:relative;--nw:250px}
+.axis{position:relative;height:26px;margin-left:var(--nw);border-bottom:1px solid #4a4c53}
+.axis span{position:absolute;top:0;font-size:12px;color:#8e9097;padding-left:6px;white-space:nowrap}
+.lines{position:absolute;top:0;bottom:0;left:var(--nw);right:0;pointer-events:none}
+.lines i{position:absolute;top:0;bottom:0;width:1px;background:#34363c}
+.trk::before{content:"";position:absolute;top:0;bottom:0;left:var(--td);width:2px;margin-left:-1px;background:var(--yel);z-index:2}
+.tdl{position:relative;height:30px;margin-left:var(--nw)}
+.tdl b{position:absolute;top:6px;left:var(--td);transform:translateX(-50%);font:700 11px "JetBrains Mono",monospace;color:#1f2024;background:var(--yel);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.row{display:grid;grid-template-columns:var(--nw) minmax(0,1fr);align-items:center;width:100%;min-height:44px;border:0;background:transparent;color:#e9e9ec;font:inherit;text-align:left;padding:0;cursor:pointer;position:relative;border-bottom:1px solid #2c2e33}
+.row:hover{background:rgba(255,255,255,.04)}
+.nm{display:flex;align-items:center;gap:10px;padding-right:14px;font-size:13px;line-height:1.25}
+.nm svg{flex:none;width:18px;height:18px;color:#a9abb2}
+.trk{position:relative;height:44px}
+.tb{position:absolute;top:50%;height:6px;margin-top:-3px;border-radius:999px;background:var(--blue)}
+.tb.win{background:transparent;border:1.5px dashed #8e9097;height:12px;margin-top:-6px}
+.dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#f1f1f3;z-index:3}
+.dot.tm{border-radius:3px;transform:rotate(45deg);background:transparent;border:2px solid #f1f1f3}
+.dl{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;white-space:nowrap;z-index:3}
+.dl small{font-weight:400;color:#a9abb2;margin-left:6px}
+.row.hot .tb{background:var(--pink)}.row.hot .dot{background:var(--pink);box-shadow:0 0 0 5px rgba(255,79,168,.25)}.row.hot .dl small{color:var(--pink)}
+.dot.tm{border-color:var(--yel)!important}.row .dl small{color:#a9abb2}
+.row.exp{opacity:.4}.row.exp .nm span{text-decoration:line-through}
+.tl-note{font-size:12px;color:#8e9097;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:6px 18px}
+.tl-note span{display:inline-flex;align-items:center;gap:7px}
+.k{display:inline-block;width:22px;height:6px;border-radius:999px;background:var(--blue)}
+/* filter bar: also on the dark ground */
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input,.bar select{font-size:16px;min-height:44px;border:1.5px solid #55575e;border-radius:999px;padding:0 16px;background:rgba(255,255,255,.05);color:#f1f1f3}
+.bar select option{color:#1f2024}
+.bar input::placeholder{color:#8e9097}
+.bar input{flex:1 1 220px}
+.fbtn{min-height:44px;border-radius:999px;border:1.5px solid #f1f1f3;background:transparent;color:#f1f1f3;padding:0 18px;font-weight:700;font-size:14px;cursor:pointer}
+.fbtn[aria-expanded=true],.fbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.fpanel{display:none;margin-top:8px}.fpanel.open{display:block}
+.frow{display:grid;grid-template-columns:7.5em 1fr;gap:8px;align-items:start;margin-top:12px}
+.frow>span{font-size:13px;color:#8e9097;padding-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #55575e;background:transparent;color:#e6e6ea;border-radius:999px;padding:0 13px;min-height:38px;font:500 13px "JetBrains Mono",monospace;cursor:pointer}
+.chip svg{width:16px;height:16px}
+.chip[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+.reset{min-height:38px;border:0;background:transparent;color:#a9abb2;text-decoration:underline;font-size:13px;cursor:pointer;margin-top:12px}
+.count{color:#a9abb2;margin:26px 0 14px;font-size:13px;display:flex;align-items:center;gap:12px}
+.count::after{content:"";flex:1;height:1px;background:#4a4c53}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:16px;align-items:start}
+.card{background:var(--card);color:var(--ink);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px;scroll-margin-top:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:transform .25s,box-shadow .25s}
+.card.flash{transform:translateY(-4px);box-shadow:0 0 0 4px var(--yel),0 14px 34px rgba(0,0,0,.35)}
+.card.is-exp{opacity:.55}
+.head{display:flex;gap:14px;align-items:flex-start}
+.ico{flex:none;width:64px;height:64px;border-radius:18px;background:var(--tile);display:grid;place-items:center;color:var(--dark)}
+.card.urgent .ico{background:var(--pink);color:#fff}
+.ico svg{width:34px;height:34px}
+.kick{margin:0;font-size:12px;color:var(--mute)}
+.card h3{margin:2px 0 0;font-size:21px;line-height:1.18;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.org{margin:4px 0 0;font-size:12px;color:var(--mute);line-height:1.4}
+.due{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:2px solid var(--line);padding-top:12px}
+.due .big{font-size:22px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+.due .txt{font-size:13px;font-weight:700}
+.due small{display:block;font-size:12px;color:var(--mute);font-weight:400;letter-spacing:0;white-space:normal}
+.cd{font-size:12px;font-weight:700;border-radius:999px;padding:5px 11px;background:var(--tile);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.cd.hot{background:var(--pink);color:#fff}.cd.hot::before{content:"";width:8px;height:8px;border-radius:50%;background:#fff}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;border:2px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill svg{width:14px;height:14px}
+.pill.dk{background:var(--dark);color:#fff;border-color:var(--dark)}
+.pill.ks{background:var(--yel);border-color:var(--yel);color:#1f2024}
+.pill.ds{border-style:dashed;color:var(--mute)}
+details.more summary{cursor:pointer;list-style:none;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;min-height:32px}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"+";display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--tile);font-weight:800}
+details.more[open] summary::before{content:"–"}
+dl{margin:8px 0 0;display:grid;grid-template-columns:6.2em 1fr;gap:6px 10px;font-size:13px}
+dt{color:var(--mute)}dd{margin:0}
+.note{font-size:12.5px;background:#f2f2f4;border-radius:12px;padding:9px 11px;margin:10px 0 0}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;min-height:42px;padding:0 18px;border-radius:999px;background:var(--blue);color:#fff;text-decoration:none;font-weight:700;font-size:13px}
+.links a.sec{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.empty{padding:30px;text-align:center;border:2px dashed #5d5f66;border-radius:22px;color:#c4c5cb}
+.src .wrap{border-top:1px solid #4a4c53;padding-top:22px}
+.src ul{margin:10px 0 0;padding:0;list-style:none;columns:2 300px;column-gap:36px;font-size:13.5px;color:#c4c5cb}
+.src li{margin-bottom:8px;break-inside:avoid;padding-left:16px;position:relative}
+.src li::before{content:"→";position:absolute;left:0;color:#6e7077}
+.src a{color:#f1f1f3}
+.small{font-size:12.5px;color:#8e9097;max-width:80ch;margin:16px 0 0}
+@media(max-width:700px){.tl{--nw:0px}.lines{display:none}.tdl b{transform:none;margin-left:-4px}.row{grid-template-columns:1fr;padding-top:8px}.nm{padding:0}.trk{height:34px}.axis span{font-size:11px;padding-left:3px}}
+@media(max-width:600px){.frow{grid-template-columns:1fr;gap:4px}.frow>span{padding-top:0}dl{grid-template-columns:1fr}dt{margin-top:4px}}
+@media(prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+</head>
+<body>
+<header class="band" style="padding-bottom:10px"><div class="wrap">
+<h1>Kunst- und Kreativwettbewerbe</h1>
+<p class="lede">Klasse 5–10 · Schuljahr 2026/27 · Kassel, Hessen, Deutschland, Europa. Die Fristen zählen automatisch herunter.</p>
+</div></header>
+
+<section class="band" style="padding-block:14px 6px"><div class="wrap">
+<h2>Fristen bis Juni 2027</h2>
+<div class="tl" id="cal"></div>
+<p class="tl-note"><span><i class="k"></i>Zeit bis zur Frist</span><span><i class="k" style="background:var(--pink)"></i>Frist in ≤ 21 Tagen</span><span><i class="k" style="background:transparent;border:1.5px dashed #8e9097;height:10px"></i>Einsendefenster, voraussichtlich (Vorjahr)</span><span><i class="k" style="background:var(--yel);width:10px;height:10px;border-radius:2px;transform:rotate(45deg)"></i>Termin</span><span><i class="k" style="background:var(--yel);width:2px;height:14px"></i>heute</span><span>Zeile antippen → Karte</span></p>
+</div></section>
+
+<section class="band" style="padding-block:18px 0"><div class="wrap">
+<div>
+<div class="bar">
+<input id="q" type="search" placeholder="Suche …" aria-label="Suche">
+<select id="sort" aria-label="Sortierung"><option value="frist">Nach Frist</option><option value="ebene">Nach Ebene</option></select>
+<button class="fbtn" id="fbtn" type="button" aria-expanded="false" aria-controls="fpanel">Filter</button>
+</div>
+<div class="fpanel" id="fpanel">
+<div class="frow"><span>Ebene</span><div class="chips" data-f="lvl"></div></div>
+<div class="frow"><span>Klasse</span><div class="chips" data-f="kl"></div></div>
+<div class="frow"><span>Sparte</span><div class="chips" data-f="sp"></div></div>
+<div class="frow"><span>Teilnahme</span><div class="chips" data-f="tn"></div></div>
+<div class="frow"><span>Status</span><div class="chips" data-f="st"></div></div>
+<button class="reset" id="reset" type="button">Filter zurücksetzen</button>
+</div>
+</div>
+</div></section>
+
+<main class="band" style="padding-top:0"><div class="wrap">
+<p class="count" id="count"></p>
+<div class="grid" id="grid"></div>
+</div></main>
+
+<section class="src band" style="padding-top:8px"><div class="wrap"><div>
+<h2>Laufend neue Wettbewerbe finden</h2>
+<ul>
+<li><a href="https://www.bildungsserver.de/wettbewerb.html">Deutscher Bildungsserver – Wettbewerbsdatenbank</a></li>
+<li><a href="https://www.begabungslotse.de/">Begabungslotse</a> – neue Ausschreibungen</li>
+<li><a href="https://kultus.hessen.de/sites/kultus.hessen.de/files/2025-06/20231018_schuelerwettbewerbe_in_hessen-eine_uebersicht.pdf">Schülerwettbewerbe in Hessen (PDF, Stand 2023)</a></li>
+<li><a href="https://www.km.bayern.de/wettbewerb">Wettbewerbsseite Bayern</a> – auch bundesweite</li>
+<li><a href="https://www.kjf.de/">Kinder- und Jugendfilmzentrum</a> – Foto, Film, Multimedia</li>
+</ul>
+<p class="small">Recherchestand 25.11.2026, alle Einträge auf den offiziellen Seiten nachgeprüft. Nicht aufgenommen: NEXT!-Fotowettbewerb (nur für Jugendliche aus Köln bzw. NRW). Kein eigener Kasseler Schüler-Kunstwettbewerb mit Frist ab Ende November 2026 gefunden. Fristen, Altersgrenzen und Rechteklauseln vor der Teilnahme auf der offiziellen Seite prüfen; Einverständniserklärungen der Eltern früh einholen.</p>
+</div></div></section>
+
+<script>
+{
+const D=[
+{id:"bpb",t:"Schülerwettbewerb zur politischen Bildung",o:"Bundeszentrale für politische Bildung",lv:["Deutschland"],k:[5,10],kt:"Stufe 4–8 (Jüngere) und 8–12 (Ältere); deutschsprachige Schüler:innen weltweit",sp:["Plakat","Film & Video","Digitale Medien"],th:"12 Themen, u. a. Konsum, Einsamkeit, Grünflächen, Schönheitsideale; Ergebnis als Video, Podcast, Plakat oder Spiel",tn:["Klasse"],tnt:"Nur im Klassenverband, als Kurs oder AG; max. 2 Themen pro Lerngruppe",d:"2026-12-03",dt:"bis 23:59 Uhr, nur online",st:"offen",pr:"Bis zu 350 Preise: 11 Klassenreisen, Geldpreise 100–2.000 €",l:[["Aufgaben 2026","https://www.bpb.de/lernen/angebote/schuelerwettbewerb/334416/die-aufgaben-2026/"],["Teilnahmebedingungen","https://www.bpb.de/lernen/angebote/schuelerwettbewerb/208551/teilnahmebedingungen-faq/"]]},
+{id:"djfp",t:"Deutscher Jugendfilmpreis 2027",o:"Deutsches Kinder- und Jugendfilmzentrum (im Auftrag des Bundesfamilienministeriums)",lv:["Deutschland"],k:[5,10],kt:"bis 25 Jahre; Altersgruppen u. a. A (0–12) und B (13–15)",sp:["Film & Video"],th:"Spiel-, Dokumentar-, Animations- und Experimentalfilm, freies Thema; Jahresthema „Liebe geht raus“ (max. 15 Min.)",tn:["Einzeln","Gruppe"],tnt:"Einzeln oder Gruppe; Team-Award für Gruppenprojekte",d:"2027-01-15",dt:"15.01.2027",st:"offen",pr:"Preisgelder insgesamt 16.000 €; Abschlussfestival",l:[["Website","https://www.deutscher-jugendfilmpreis.de/"],["Meldung BMBFSFJ","https://www.bmbfsfj.bund.de/bmbfsfj/jetzt-fuer-den-jugendfilmpreis-2027-bewerben--292690"]]},
+{id:"ew",t:"74. Europäischer Wettbewerb",o:"Europäische Bewegung Deutschland mit den Kultusministerien; Landesstelle Hessen",lv:["Hessen","Europa"],ks:true,k:[5,10],kt:"Grundschule bis Berufsschule; Aufgaben nach Klassenstufen (Jüngere dürfen höhere Module wählen)",sp:["Bild & Malerei","Plakat","Film & Video","Schreiben","Digitale Medien"],th:"„Europa gerecht gestalten: Was kostet die Zukunft?“ – Bild-, Text- oder Medienarbeit mit Europabezug; Sondermodul S für alle Altersgruppen",tn:["Einzeln","Gruppe"],tnt:"Einzeln oder Gruppen bis 4 Personen; online registrieren (auch ohne Lehrkraft möglich)",d:"2027-01-27",dt:"Hessen: Einsendung 20.–27.01.2027",st:"offen",pr:"Landes- und Bundespreise; Bundessiegerehrung am 20.05.2027 im Bürgersaal des Kasseler Rathauses",n:"Bildarbeiten max. 42 × 60 cm, keine Leinwände. Anmeldeformular fest aufkleben, Fotos online hochladen, Original per Post an die Landesstelle.",l:[["Landesstelle Hessen","https://www.ewhe.de/"],["Mitmachen","https://www.europaeischer-wettbewerb.de/mitmachen/"]]},
+{id:"vis",t:"visionale 2027",o:"Hessens JugendMedienFestival (Frankfurt, Gallus Theater)",lv:["Hessen"],k:[5,10],kt:"bis 19 Jahre aus ganz Hessen; Kategorien 0–11, 12–15, 16–19 (ältestes Gruppenmitglied zählt)",sp:["Film & Video","Digitale Medien"],th:"Film, Games, Audio, Coding, digitale Medienprojekte (entstanden ab Oktober 2025)",tn:["Einzeln","Gruppe","Klasse"],tnt:"Einzelne, Gruppen und medienpädagogische Projekte",d:"2027-02-12",dt:"12.02.2027",st:"offen",pr:"Auszeichnung beim Festival (21.–23.05.2027)",n:"Minderjährige bis 16 brauchen eine Einwilligungserklärung der Eltern.",l:[["Einreichung","https://visionale-hessen.de/einreichung/"]]},
+{id:"jc",t:"jugend creativ – „Traumwelten“",o:"Volksbanken Raiffeisenbanken (57. Runde)",lv:["Deutschland","Europa"],k:[5,10],kt:"Kl. 1–13; Wertung in Gruppen 5–6, 7–9, 10–13",sp:["Bild & Malerei","Foto","Film & Video"],th:"„Traumwelten“ – Kl. 5–9: eine Welt mit eigenen Regeln und Wesen erfinden. Alle Techniken inkl. Collage und Foto, außerdem Kurzfilm und Quiz",tn:["Einzeln","Klasse"],tnt:"Einzelarbeiten, gesammelt über die Schule bei der VR-Bank vor Ort abgegeben",d:"2027-02-18",dt:"18.02.2027",st:"offen",pr:"Orts-, Landes- und Bundespreise; Bundespreisträgerakademie August 2027; internationale Jurierung (DE, FR, IT, LU, AT, CH)",n:"Ortsjury bei der regionalen Volks-/Raiffeisenbank – kurz bei der Bank in Kassel nachfragen, ob sie 2026/27 teilnimmt.",l:[["Aktueller Wettbewerb","https://www.jugendcreativ.de/Wettbewerb/Aktueller-Wettbewerb"]]},
+{id:"ja",t:"JUNG & ABGEDREHT No. 15",o:"Jugendfilmfestival Hanau",lv:["Hessen"],k:[8,10],kt:"14–27 Jahre",sp:["Film & Video"],th:"Kurzfilm, Genre und Technik frei",tn:["Einzeln","Gruppe"],tnt:"Einzeln oder Gruppe, Online-Anmeldung",d:"2027-03-15",dt:"15.03.2027",st:"offen",pr:"Jury- und Publikumspreise; Festival Juni 2027 (Kinopolis Hanau + online)",n:"Erst ab 14 Jahren – passt nur für ältere Schüler:innen.",l:[["Website","https://www.jungundabgedreht.de/"]]},
+{id:"bsb",t:"bunt statt blau",o:"DAK-Gesundheit – Kunst gegen Komasaufen",lv:["Deutschland"],k:[6,10],kt:"12–17 Jahre, Wohnsitz in Deutschland",sp:["Plakat"],th:"Plakat DIN A2 zum Thema Alkoholmissbrauch",tn:["Einzeln","Gruppe","Klasse"],tnt:"Einzeln, Teams oder Schulklassen; DAK-Versicherung nicht nötig",d:"2027-03-31",dt:"31.03.2027 (Poststempel)",st:"offen",pr:"Landesebene 300/200/100 € + 100 € „Junge Talente“; Bundesebene 500/400/300 € + Sonderpreise à 300 €",n:"Ohne KI – auch nicht bei Ideenfindung. Die DAK erhält ein kostenloses, zeitlich und räumlich unbegrenztes Nutzungsrecht; Plakate kommen nicht zurück.",l:[["Zur Aktion","https://www.dak.de/dak/praeventionskampagnen/-bunt-statt-blau-kunst-gegen-komasaufen-startet-jetzt-bist-du-gefragt-_11492"],["Bedingungen","https://www.dak.de/dak/praeventionskampagnen/teilnahmebedingungen-aktion-bunt-statt-blau_29548"]]},
+{id:"vb",t:"Internationaler Comic-Wettbewerb",o:"Volksbund Deutsche Kriegsgräberfürsorge mit Partnern in Frankreich und Belgien (10. Runde)",lv:["Europa"],k:[6,10],kt:"12–20 Jahre",sp:["Comic"],th:"„Das Meer im Krieg: Zwischen Aufbruch, Abgrund und Erinnerung“ – Comic/Manga, 2–10 DIN-A4-Seiten mit Titel + Arbeitsbericht (max. 1 Seite)",tn:["Einzeln","Gruppe","Klasse"],tnt:"Einzeln oder Gruppe von 2–10 Personen",d:"2027-03-31",dt:"31.03.2027 (Post oder E-Mail)",st:"offen",pr:"Gutscheine 75/50/25 € (bei Gruppen pro Person); 1. Platz: internationale Jugendbegegnung bzw. Gruppenwochenende mit Gewinner:innen aus Frankreich und Belgien",l:[["Wettbewerbe","https://www.volksbund.de/schulen-und-hochschulen/wettbewerbe"],["Bericht","https://hubbs.schule/article/news/comic-wettbewerb-zum-thema-das-meer-im-krieg"]]},
+{id:"jing",t:"Junior.ING 2026/27",o:"Ingenieurkammer Hessen (Landeswettbewerb der Ingenieurkammern)",lv:["Hessen","Deutschland"],k:[5,10],kt:"Kategorie I: Kl. 5–8 · Kategorie II: ab Kl. 9",sp:["Modellbau"],th:"„Skywalk – Konstruktion mit Weitblick“: Modell einer Aussichtsplattform entwerfen und bauen",tn:["Einzeln","Gruppe"],tnt:"Einzeln oder Gruppen bis 5 Personen",d:"2026-12-18",dt:"Anmeldung bis 18.12.2026 · Modell bis 26.02.2027",st:"offen",pr:"Land: 250/150/100 € + Anerkennungen à 50 €; 1. Platz weiter zum Bundeswettbewerb; Landessiegerehrung 17.03.2027 in Frankfurt",n:"Erst online anmelden (18.12.), dann das Modell bei der Ingenieurkammer in Wiesbaden abgeben (26.02.).",l:[["Ausschreibung Hessen","https://ingkh.de/ingkh/nachwuchs/junioring/wettbewerbe/2026-2027.php"]]},
+{id:"wkmt",t:"Weltkindermaltag",o:"Staedtler mit Plan International; die Kasseler Plan-Aktionsgruppe koordiniert Schulen der Region",lv:["Kassel","International"],ks:true,k:[5,6],kt:"bis 12 Jahre (Wertung 3–6 und 7–12)",sp:["Bild & Malerei"],th:"Malen zu einem jährlichen Motto (2026: „Football, Friends & Colouring Fun“); Motto 2027 noch nicht veröffentlicht",tn:["Einzeln","Gruppe","Klasse"],tnt:"Einzeln oder als Gruppe/Klasse",d:null,dt:"jährlich rund um den 6. Mai; Zeitraum 2027 noch offen",st:"vormerken",pr:"Staedtler-Produktpakete; pro Bild 1 € Spende an ein Plan-Bildungsprojekt",l:[["Staedtler","https://www.staedtler.com/de/de/unternehmen/ueber-staedtler/verantwortung-tragen/weltkindermaltag/"],["Plan-Aktionsgruppen","https://www.plan-aktionsgruppen.de/event/bis-30-juni-malwettbewerb/"]]},
+{id:"opuk",t:"Ohne Punkt und Komma",o:"Hessisches Literaturforum im Mousonturm mit HMWK",lv:["Hessen"],k:[6,10],kt:"ca. 12–16 Jahre (Geburtsjahrgänge); Wohnort oder Schule in Hessen",sp:["Schreiben"],th:"Kreatives Schreiben, freies Thema",tn:["Einzeln"],tnt:"Einzeln",d:"2027-04-30",from:"2027-03-15",vag:true,dt:"2026: Einsendung 15.03.–30.04.; Runde 2027 noch nicht veröffentlicht",st:"vormerken",pr:"Siehe Spielregeln auf der Website",l:[["Website","https://ohnepunktundkomma.net/"]]},
+{id:"mb21",t:"Deutscher Multimediapreis mb21",o:"KJF + Medienkulturzentrum Dresden",lv:["Deutschland"],k:[5,10],kt:"bis 25 Jahre, deutschlandweit",sp:["Digitale Medien"],th:"Games, Apps, Websites, Podcasts, Medienkunst",tn:["Einzeln","Gruppe","Klasse"],tnt:"Einzeln, Gruppe, Schulklasse",d:null,dt:"Ausschreibung 2027 noch nicht veröffentlicht (2026: bis 03.08.)",st:"vormerken",pr:"Zuletzt 11.000 € gesamt",l:[["Website","https://www.mb21.de/"]]},
+{id:"djfoto",t:"Deutscher Jugendfotopreis",o:"Deutsches Kinder- und Jugendfilmzentrum",lv:["Deutschland"],k:[5,10],kt:"bis 25 Jahre",sp:["Foto"],th:"Fotografie; zuletzt freies Thema, Jahresthema und Experiment",tn:["Einzeln","Gruppe"],tnt:"Einzeln oder Gruppe, kostenlos",d:null,dt:"nächste Ausschreibung noch nicht veröffentlicht",st:"vormerken",pr:"2026: 40 Preise",l:[["Website","https://www.jugendfotopreis.de/"]]},
+{id:"ew1",t:"alle für EINE WELT für alle",o:"Engagement Global / BMZ – Schulwettbewerb zur Entwicklungspolitik",lv:["Deutschland"],k:[5,10],kt:"Alle Klassenstufen",sp:["Bild & Malerei","Plakat","Film & Video"],th:"Alle Formate (Plakat, Kunstwerk, Film …), wechselndes Thema",tn:["Gruppe","Klasse"],tnt:"Klassen, Teams, AGs",d:null,dt:"Runde 2025/26 beendet; nächste startet zum Schuljahr 2027/28",st:"vormerken",pr:"Zuletzt über 100 Preise, Gesamtwert über 50.000 €, plus Schulpreis",l:[["Website","https://www.eineweltfueralle.de/"]]},
+{id:"lions",t:"Lions Friedensplakat",o:"Lions Clubs International, über den lokalen Lions Club",lv:["International"],k:[5,7],kt:"11–13 Jahre",sp:["Plakat"],th:"Motto 2026/27 „Harmonie unter den Menschen“",tn:["Einzeln"],tnt:"Einzeln; ein Lions Club organisiert die Runde an der Schule",d:null,dt:"Runde 2026/27 vorbei (Club-Frist 15.11.) → für 2027/28 vormerken",st:"vormerken",pr:"Distrikt-, Bundes- und Weltpreise",n:"Der Club muss das Material bis 1. Oktober bestellen – also im Frühsommer 2027 beim Lions Club Kassel anfragen.",l:[["Lions Deutschland","https://www.lions.de/friedensplakatwettbewerb"]]},
+{id:"cc",t:"classic-clip",o:"Konzertverein Kassel / QuArt@Kindermusiktage mit Kunsthochschule Kassel",lv:["Kassel"],ks:true,k:[5,10],kt:"Mittel- und Oberstufe",sp:["Film & Video"],th:"Musikvideo zu einem klassischen Werk",tn:["Einzeln","Klasse"],tnt:"Einzeln, Klassen, Kurse",d:null,dt:"nur Runde 2023 auffindbar",st:"unklar",pr:"Früher Geldpreise (z. B. 250 € / 100 €)",n:"Fortsetzung unklar – ggf. beim Konzertverein nachfragen.",l:[["Kindermusiktage","https://www.kindermusiktage.org/clcl/schule/aktuell.php"]]},
+{id:"dok",t:"junges dokfest",o:"Kasseler Dokfest (Filmladen Kassel e.V.)",lv:["Kassel"],ks:true,k:[8,10],kt:"Jahrgang 8–13",sp:["Film & Video"],th:"Dokumentarfilm-Bildungsprogramm mit Klassenbesuch",tn:["Klasse"],tnt:"Klassenbesuch",d:null,dt:"kein Einreichen möglich",st:"kein",pr:"–",n:"Kein Wettbewerb, aber ein Kasseler Angebot für Film-Unterricht.",l:[["junges dokfest","https://www.kasselerdokfest.de/das-festival/junges-dokfest"]]}
+];
+const EV=[{d:"2027-05-20",t:"Siegerehrung Europ. Wettbewerb im Rathaus Kassel",ref:"ew"}];
+const P='fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"';
+const IC={
+"Bild & Malerei":`<rect x="3" y="4" width="18" height="16" rx="4"/><circle cx="9" cy="9.5" r="2"/><path d="M4 18l5-5 4 4 3-3 4.5 4.5"/>`,
+"Plakat":`<rect x="5" y="2.5" width="14" height="19" rx="3.5"/><circle cx="12" cy="9" r="3"/><path d="M8.5 15.5h7M8.5 18.5h4"/>`,
+"Comic":`<path d="M4 6.5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-6l-4.5 4v-4H7a3 3 0 0 1-3-3z"/><circle cx="9" cy="10" r=".6"/><circle cx="12" cy="10" r=".6"/><circle cx="15" cy="10" r=".6"/>`,
+"Foto":`<rect x="2.5" y="6.5" width="19" height="14" rx="4"/><circle cx="12" cy="13.5" r="3.6"/><path d="M8.5 6.5l1.5-3h4l1.5 3"/>`,
+"Film & Video":`<rect x="2.5" y="4.5" width="19" height="15" rx="4"/><path d="M10 9.2v5.6l4.8-2.8z"/>`,
+"Digitale Medien":`<rect x="2.5" y="3.5" width="19" height="13" rx="3"/><path d="M9 20.5h6M12 16.5v4"/><path d="M9.5 8.5L7.5 10l2 1.5M14.5 8.5l2 1.5-2 1.5"/>`,
+"Schreiben":`<path d="M4 6h16M4 11h16M4 16h9"/><circle cx="18.5" cy="17.5" r="2"/>`,
+"Modellbau":`<path d="M12 2.8l8 4.6v9.2l-8 4.6-8-4.6V7.4z"/><path d="M4 7.4l8 4.6 8-4.6M12 12v9.2"/>`
+};
+const ico=(s,c="")=>`<svg viewBox="0 0 24 24" ${P} class="${c}" aria-hidden="true">${IC[s]}</svg>`;
+const LV=["Kassel","Hessen","Deutschland","Europa","International"];
+const SP=Object.keys(IC);
+const TN=["Einzeln","Gruppe","Klasse"];
+const ST={offen:"Offen",vormerken:"Vormerken",unklar:"Unklar",kein:"Kein Wettbewerb",abgelaufen:"Abgelaufen"};
+const KL=[5,6,7,8,9,10];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now=new Date();now.setHours(0,0,0,0);
+const pd=s=>{const[a,b,c]=s.split("-").map(Number);return new Date(a,b-1,c)};
+const days=s=>Math.round((pd(s)-now)/864e5);
+const dm=s=>pd(s).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"});
+const mon=s=>pd(s).toLocaleDateString("de-DE",{month:"short",year:"2-digit"});
+const full=s=>pd(s).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+const cdText=n=>n<0?"abgelaufen":n===0?"heute":n===1?"noch 1 Tag":`noch ${n} Tage`;
+D.forEach(x=>{x.exp=!!(x.d&&!x.vag&&days(x.d)<0);x.s=x.exp?"abgelaufen":x.st});
+const F={lvl:new Set(),kl:new Set(),sp:new Set(),tn:new Set(),st:new Set()};
+try{const s=JSON.parse(localStorage.getItem("kw-filter")||"{}");for(const k in F)(s[k]||[]).forEach(v=>F[k].add(v))}catch(e){}
+const save=()=>{try{const o={};for(const k in F)o[k]=[...F[k]];localStorage.setItem("kw-filter",JSON.stringify(o))}catch(e){}};
+const opts={lvl:LV,kl:KL.map(String),sp:SP,tn:TN,st:Object.keys(ST)};
+const lab=(f,v)=>f==="st"?esc(ST[v]):f==="kl"?"Kl. "+v:f==="sp"?ico(v)+esc(v):esc(v);
+document.querySelectorAll(".chips").forEach(box=>{const f=box.dataset.f;box.innerHTML=opts[f].map(v=>`<button type="button" class="chip" data-v="${esc(v)}" aria-pressed="${F[f].has(v)}">${lab(f,v)}</button>`).join("");
+box.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;F[f].has(v)?F[f].delete(v):F[f].add(v);b.setAttribute("aria-pressed",F[f].has(v));save();render()})});
+const q=document.getElementById("q"),sort=document.getElementById("sort"),fbtn=document.getElementById("fbtn"),fp=document.getElementById("fpanel");
+fbtn.addEventListener("click",()=>{const o=fp.classList.toggle("open");fbtn.setAttribute("aria-expanded",o)});
+q.addEventListener("input",render);sort.addEventListener("change",render);
+document.getElementById("reset").addEventListener("click",clearAll);
+function clearAll(){for(const k in F)F[k].clear();q.value="";document.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed","false"));save();render()}
+const so={offen:0,unklar:1,vormerken:2,kein:3,abgelaufen:4};
+function match(x){
+if(F.lvl.size&&!x.lv.some(v=>F.lvl.has(v)))return false;
+if(F.kl.size&&![...F.kl].some(k=>+k>=x.k[0]&&+k<=x.k[1]))return false;
+if(F.sp.size&&!x.sp.some(v=>F.sp.has(v)))return false;
+if(F.tn.size&&!x.tn.some(v=>F.tn.has(v)))return false;
+if(F.st.size&&!F.st.has(x.s))return false;
+const t=q.value.trim().toLowerCase();
+if(t&&![x.t,x.o,x.th,x.kt,x.pr,x.n||"",x.lv.join(" "),x.sp.join(" ")].join(" ").toLowerCase().includes(t))return false;
+return true}
+function card(x){
+const n=x.d&&!x.vag?days(x.d):null;
+const hot=n!==null&&n>=0&&n<=21;
+const kl=x.k[0]===x.k[1]?`Kl. ${x.k[0]}`:`Kl. ${x.k[0]}–${x.k[1]}`;
+const big=x.d&&!x.vag?`<span class="big">${full(x.d)}</span>${x.dt!==full(x.d)?`<small>${esc(x.dt)}</small>`:""}`:`<span class="txt">${esc(x.dt)}</span>`;
+return `<article class="card${x.exp?" is-exp":""}${hot?" urgent":""}" id="c-${x.id}">
+<div class="head"><div class="ico">${ico(x.sp[0])}</div><div><p class="kick">${esc(x.lv.join(" · "))}</p><h3>${esc(x.t)}</h3><p class="org">${esc(x.o)}</p></div></div>
+<div class="due"><div>${big}</div>${n!==null?`<span class="cd${hot?" hot":""}">${cdText(n)}</span>`:""}</div>
+<div class="pills"><span class="pill ${x.s==="offen"?"dk":"ds"}">${esc(ST[x.s])}</span><span class="pill">${kl}</span>${x.sp.map(s=>`<span class="pill">${ico(s)}${esc(s)}</span>`).join("")}${x.ks?`<span class="pill ks">Kassel-Bezug</span>`:""}</div>
+<details class="more"><summary>Details</summary><dl><dt>Thema</dt><dd>${esc(x.th)}</dd><dt>Alter</dt><dd>${esc(x.kt)}</dd><dt>Teilnahme</dt><dd>${esc(x.tnt)}</dd><dt>Preise</dt><dd>${esc(x.pr)}</dd></dl>${x.n?`<p class="note">${esc(x.n)}</p>`:""}</details>
+<div class="links">${x.l.map((l,i)=>`<a class="${i?"sec":""}" href="${esc(l[1])}" target="_blank" rel="noopener">${esc(l[0])} ↗</a>`).join("")}</div></article>`}
+function render(){
+let r=D.filter(match);
+const key=x=>x.d?pd(x.d).getTime():9e15;
+if(sort.value==="frist")r.sort((a,b)=>so[a.s]-so[b.s]||key(a)-key(b));
+else r.sort((a,b)=>(a.exp-b.exp)||LV.indexOf(a.lv[0])-LV.indexOf(b.lv[0])||key(a)-key(b));
+document.getElementById("grid").innerHTML=r.length?r.map(card).join(""):`<div class="empty">Keine Treffer. <button class="reset" type="button" id="r2" style="color:#fff;margin:0">Filter zurücksetzen</button></div>`;
+const r2=document.getElementById("r2");if(r2)r2.addEventListener("click",clearAll);
+const nf=Object.values(F).reduce((s,f)=>s+f.size,0);
+fbtn.textContent=nf?`Filter · ${nf}`:"Filter";fbtn.classList.toggle("on",nf>0);
+document.getElementById("count").textContent=`${r.length} von ${D.length} · ${r.filter(x=>x.s==="offen").length} offen`;
+}
+function cal(){
+const el=document.getElementById("cal");
+const start=new Date(now.getFullYear(),now.getMonth(),1),end=new Date(2027,6,1);
+if(now>=end){el.innerHTML=`<p class="lede">Die Zeitleiste reicht bis Juni 2027 – Zeit für eine neue Recherche.</p>`;return}
+const span=end-start,pos=d=>Math.max(0,Math.min(100,(d-start)/span*100));
+const ms=[];let m=new Date(start);while(m<end){ms.push(new Date(m));m=new Date(m.getFullYear(),m.getMonth()+1,1)}
+const narrow=innerWidth<700;
+const rows=D.filter(x=>x.d).map(x=>({d:x.d,t:x.t,ref:x.id,sp:x.sp[0],vag:x.vag,exp:x.exp,from:x.from||null})).concat(EV.map(e=>({...e,tm:true,exp:days(e.d)<0,sp:null}))).filter(r=>pd(r.d)>=start).sort((a,b)=>pd(a.d)-pd(b.d));
+const tdp=pos(now);
+const axis=`<div class="axis">${ms.map(mo=>`<span style="left:${pos(mo)}%">${mo.toLocaleDateString("de-DE",{month:narrow?"narrow":"short"})}</span>`).join("")}</div>`;
+const lines=`<div class="lines">${ms.slice(1).map(mo=>`<i style="left:${pos(mo)}%"></i>`).join("")}</div>`;
+const star=`<svg viewBox="0 0 24 24" ${P}><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>`;
+el.style.setProperty("--td",tdp+"%");
+el.innerHTML=lines+axis+rows.map(r=>{
+const n=days(r.d),dp=pos(pd(r.d)),hot=!r.vag&&!r.tm&&n>=0&&n<=21;
+let bar="";
+if(r.vag&&r.from){const fp=pos(pd(r.from));bar=`<span class="tb win" style="left:${fp}%;width:${dp-fp}%"></span>`}
+else if(!r.exp&&!r.tm){bar=`<span class="tb" style="left:${tdp}%;width:${Math.max(0,dp-tdp)}%"></span>`}
+const right=dp<72;const wl=r.vag&&r.from?pos(pd(r.from)):null;
+const lab=`<span class="dl" style="${wl!==null?`right:calc(${100-wl}% + 10px)`:right?`left:calc(${dp}% + 14px)`:`right:calc(${100-dp}% + 14px)`}">${r.vag?"bis ":""}${dm(r.d)}<small>${r.exp?"vorbei":r.tm?"Termin":r.vag?"voraussichtl.":cdText(n).replace("noch ","")}</small></span>`;
+return `<button type="button" class="row${hot?" hot":""}${r.exp?" exp":""}" data-ref="${esc(r.ref)}"><span class="nm">${r.sp?ico(r.sp):star}<span>${esc(r.t)}</span></span><span class="trk">${bar}<span class="dot${r.tm?" tm":""}" style="left:${dp}%"></span>${lab}</span></button>`}).join("")+`<div class="tdl"><b>heute ${dm(`${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`)}</b></div>`;
+}
+document.getElementById("cal").addEventListener("click",e=>{const b=e.target.closest(".row");if(!b)return;let c=document.getElementById("c-"+b.dataset.ref);if(!c){clearAll();c=document.getElementById("c-"+b.dataset.ref)}if(!c)return;c.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),1600)});
+cal();render();
+let rw=innerWidth;addEventListener("resize",()=>{if((innerWidth<700)!==(rw<700)){rw=innerWidth;cal()}});
+}
+</script>
+</body>
+</html>
